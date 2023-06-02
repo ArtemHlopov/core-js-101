@@ -5,7 +5,6 @@
  *                                                                                                *
  ************************************************************************************************ */
 
-
 /**
  * Return Promise object that is resolved with string value === 'Hooray!!! She said "Yes"!',
  * if boolean value === true is passed, resolved with string value === 'Oh no, she said "No".',
@@ -28,10 +27,17 @@
  *      .catch((error) => console.log(error.message)) // 'Error: Wrong parameter is passed!
  *                                                    //  Ask her again.';
  */
-function willYouMarryMe(/* isPositiveAnswer */) {
-  throw new Error('Not implemented');
+function willYouMarryMe(isPositiveAnswer) {
+  return new Promise((resolve, reject) => {
+    if (isPositiveAnswer === true) {
+      resolve('Hooray!!! She said "Yes"!');
+    }
+    if (isPositiveAnswer === false) {
+      resolve('Oh no, she said "No".');
+    }
+    reject(Error('Wrong parameter is passed! Ask her again.'));
+  });
 }
-
 
 /**
  * Return Promise object that should be resolved with array containing plain values.
@@ -48,8 +54,8 @@ function willYouMarryMe(/* isPositiveAnswer */) {
  *    })
  *
  */
-function processAllPromises(/* array */) {
-  throw new Error('Not implemented');
+function processAllPromises(array) {
+  return Promise.all(array).then((val) => val);
 }
 
 /**
@@ -71,8 +77,8 @@ function processAllPromises(/* array */) {
  *    })
  *
  */
-function getFastestPromise(/* array */) {
-  throw new Error('Not implemented');
+function getFastestPromise(array) {
+  return Promise.race(array).then((val) => val);
 }
 
 /**
@@ -92,10 +98,19 @@ function getFastestPromise(/* array */) {
  *    });
  *
  */
-function chainPromises(/* array, action */) {
-  throw new Error('Not implemented');
+async function chainPromises(array, action) {
+  return new Promise((resolve) => {
+    const result = [];
+    for (let i = 0; i < array.length; i += 1) {
+      array[i]
+        .catch(() => {})
+        .then((r) => {
+          result.push(r);
+          if (result.length === array.length) resolve(result.reduce(action));
+        });
+    }
+  });
 }
-
 module.exports = {
   willYouMarryMe,
   processAllPromises,
