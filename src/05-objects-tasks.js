@@ -113,33 +113,129 @@ function fromJSON(proto, json) {
  *  For more examples see unit tests.
  */
 
+class Builder {
+  constructor() {
+    this.selectorCSS = '';
+    this.idCSS = '';
+    this.classCSS = '';
+    this.attrCSS = '';
+    this.pseudoClassCSS = '';
+    this.pseudoElementCSS = '';
+    this.result = '';
+    this.position = [];
+  }
+
+  element(value) {
+    if (this.selectorCSS !== '') {
+      throw new Error(
+        'Element, id and pseudo-element should not occur more then one time inside the selector',
+      );
+    }
+    this.checkPosition(0);
+    this.selectorCSS = `${value}`;
+    this.result += this.selectorCSS;
+    this.position.push(0);
+    return this;
+  }
+
+  id(value) {
+    if (this.idCSS !== '') {
+      throw new Error(
+        'Element, id and pseudo-element should not occur more then one time inside the selector',
+      );
+    }
+    this.checkPosition(1);
+    this.idCSS = `#${value}`;
+    this.result += this.idCSS;
+    this.position.push(1);
+    return this;
+  }
+
+  class(value) {
+    this.checkPosition(2);
+    this.classCSS = `.${value}`;
+    this.result += this.classCSS;
+    this.position.push(2);
+    return this;
+  }
+
+  attr(value) {
+    this.checkPosition(3);
+    this.attrCSS = `[${value}]`;
+    this.result += this.attrCSS;
+    this.position.push(3);
+    return this;
+  }
+
+  pseudoClass(value) {
+    this.checkPosition(4);
+    this.pseudoClassCSS = `:${value}`;
+    this.result += this.pseudoClassCSS;
+    this.position.push(4);
+    return this;
+  }
+
+  pseudoElement(value) {
+    if (this.pseudoElementCSS !== '') {
+      throw new Error(
+        'Element, id and pseudo-element should not occur more then one time inside the selector',
+      );
+    }
+    this.checkPosition(5);
+    this.pseudoElementCSS = `::${value}`;
+    this.result += this.pseudoElementCSS;
+    this.position.push(5);
+    return this;
+  }
+
+  stringify() {
+    return this.result;
+  }
+
+  combine(selector1, combinator, selector2) {
+    this.result = `${selector1.stringify()} ${combinator} ${selector2.stringify()}`;
+    return this;
+  }
+
+  checkPosition(number) {
+    if (
+      this.position.length > 0
+      && number < this.position[this.position.length - 1]
+    ) {
+      throw new Error(
+        'Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element',
+      );
+    }
+  }
+}
+
 const cssSelectorBuilder = {
-  element(/* value */) {
-    throw new Error('Not implemented');
+  element(value) {
+    return new Builder().element(value);
   },
 
-  id(/* value */) {
-    throw new Error('Not implemented');
+  id(value) {
+    return new Builder().id(value);
   },
 
-  class(/* value */) {
-    throw new Error('Not implemented');
+  class(value) {
+    return new Builder().class(value);
   },
 
-  attr(/* value */) {
-    throw new Error('Not implemented');
+  attr(value) {
+    return new Builder().attr(value);
   },
 
-  pseudoClass(/* value */) {
-    throw new Error('Not implemented');
+  pseudoClass(value) {
+    return new Builder().pseudoClass(value);
   },
 
-  pseudoElement(/* value */) {
-    throw new Error('Not implemented');
+  pseudoElement(value) {
+    return new Builder().pseudoElement(value);
   },
 
-  combine(/* selector1, combinator, selector2 */) {
-    throw new Error('Not implemented');
+  combine(selector1, combinator, selector2) {
+    return new Builder().combine(selector1, combinator, selector2);
   },
 };
 
